@@ -1,11 +1,12 @@
 package ge.vakho.pdf_viewer;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Toolkit;
-import java.awt.Window.Type;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -21,22 +22,38 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PageDrawerParameters;
 
 public class PdfViewer {
 
 	private JFrame frame;
 	private MyPDFRenderer renderer;
 	private JPanel panelSelectedPage;
+
 	private int numberOfPages;
 	private int currentPageIndex = 0;
-	private Double width;
-	private Double height;
+
+	private int width;
+	private int height;
+
 	private JTextField txtPageNumber;
 	private JButton btnLastPage;
 	private JButton btnNextPage;
 	private JButton btnPreviousPage;
 	private JButton btnFirstPage;
-	
+
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					new PdfViewer(new File("C:/Users/vakho/Desktop/cwguide-070313.pdf"));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
 	private void enableDisableButtons(int actionIndex) {
 		switch (actionIndex) {
 		case 0:
@@ -65,13 +82,19 @@ public class PdfViewer {
 
 	private void selectPage(int pageIndex) {
 		BufferedImage renderImage = null;
+
 		try {
-			renderImage = renderer.renderImage(pageIndex);
+			renderImage = renderer.renderImage(pageIndex, 1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		panelSelectedPage.removeAll(); // Remove children
-		panelSelectedPage.add(new ImagePanel(renderImage, width.intValue(), height.intValue()), BorderLayout.CENTER);
+		panelSelectedPage.removeAll(); // Remove children		
+		
+		ImagePanel imagePanel = new ImagePanel(renderImage, width, height);
+		imagePanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+		imagePanel.setLayout(new CardLayout(0, 0));
+		imagePanel.setPreferredSize(new Dimension(width, height));
+		panelSelectedPage.add(imagePanel, BorderLayout.CENTER);
 		currentPageIndex = pageIndex;
 
 		String pageText = String.format("Page: %d / %d", pageIndex + 1, numberOfPages);
@@ -87,24 +110,34 @@ public class PdfViewer {
 
 		panelSelectedPage.revalidate();
 		panelSelectedPage.repaint();
+		
+		System.out.println(imagePanel.getPreferredSize().width + " : " + imagePanel.getPreferredSize().height);
 	}
 
 	private void initialize(File file) throws Exception {
-		PDDocument doc = PDDocument.load(file);
-		numberOfPages = doc.getNumberOfPages();
-		renderer = new MyPDFRenderer(doc);
 
+		PDDocument doc = PDDocument.load(file);
+		
 		// Getting/calculating screen dimensions...
+		Float realWidth = new Float(doc.getPage(0).getMediaBox().getWidth());
+		Float realHeight = new Float(doc.getPage(0).getMediaBox().getHeight());
+
+		System.out.println(realWidth + ", " + realHeight);
+		
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Double ratio = 0.8;
-		height = screenSize.getHeight() * ratio;
-		width = height * 0.7;
+
+		height = (int) (screenSize.getHeight() * ratio);
+		width = (int) ((height * realWidth) / realHeight);
+
+		numberOfPages = doc.getNumberOfPages();
+		
+		renderer = new MyPDFRenderer(doc);
 
 		System.out.println("Number of pages = " + numberOfPages);
 
 		frame = new JFrame();
 		frame.setResizable(false);
-		frame.setType(Type.UTILITY);
 		frame.setTitle(file.getName());
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -184,7 +217,7 @@ public class PdfViewer {
 
 		Box verticalBoxView = Box.createVerticalBox();
 		frame.getContentPane().add(verticalBoxView, BorderLayout.WEST);
-		
+
 		Component verticalStrutView = Box.createVerticalStrut(10);
 		verticalBoxView.add(verticalStrutView);
 
@@ -197,8 +230,8 @@ public class PdfViewer {
 		panelSelectedPage = new JPanel();
 		panelSelectedPage.setBackground(Color.LIGHT_GRAY);
 		horizontalBoxView.add(panelSelectedPage);
-		panelSelectedPage.setPreferredSize(new Dimension(width.intValue(), height.intValue()));
-		panelSelectedPage.setBorder(new EmptyBorder(20, 20, 20, 20));
+		panelSelectedPage.setPreferredSize(new Dimension(width, height));
+		panelSelectedPage.setBorder(new EmptyBorder(0, 0, 0, 0));
 		panelSelectedPage.setLayout(new BorderLayout(0, 0));
 
 		Component horizontalStrutViewRight = Box.createHorizontalStrut(10);
@@ -209,5 +242,6 @@ public class PdfViewer {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+		frame.repaint();
 	}
 }
