@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.Window.Type;
 import java.awt.event.ActionEvent;
@@ -37,19 +36,6 @@ public class PdfViewer {
 	private JButton btnNextPage;
 	private JButton btnPreviousPage;
 	private JButton btnFirstPage;
-
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					new PdfViewer(new File(
-							"C:/Users/vakho/Desktop/ლექციათა კურსი საგანში დისკრეტული სისტემების ქცევის მოდელები 2014.pdf"));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 	
 	private void enableDisableButtons(int actionIndex) {
 		switch (actionIndex) {

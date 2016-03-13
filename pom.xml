@@ -16,12 +16,12 @@
 
 	<dependencies>
 
-		<!-- PDF Renderer -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.swinglabs</groupId> -->
-		<!-- <artifactId>pdf-renderer</artifactId> -->
-		<!-- <version>1.0.5</version> -->
-		<!-- </dependency> -->
+		<!-- Bouncy Castle -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.54</version>
+		</dependency>
 
 		<!-- PDFBox -->
 		<dependency>

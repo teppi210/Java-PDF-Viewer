@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.security.Security;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -17,6 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class Main {
 
@@ -51,6 +54,9 @@ public class Main {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
+		Security.addProvider(new BouncyCastleProvider());
+		
 		frmDocumentSigner = new JFrame();
 		frmDocumentSigner.setResizable(false);
 		frmDocumentSigner.setTitle("Document Signer");
